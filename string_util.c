@@ -132,8 +132,8 @@ char* to_lowercase_malloc(const char* str)
 
 char* trim_malloc(const char* str)
 {
-    const char* pa_start;
-    const char* pa_end;
+    const char* start;
+    const char* end;
     char* pa_result;
     size_t length;
 
@@ -141,20 +141,20 @@ char* trim_malloc(const char* str)
         return NULL;
     }
 
-    pa_start = str;
-    while (*pa_start != '\0' && isspace((unsigned char)*pa_start)) {
-        pa_start++;
+    start = str;
+    while (*start != '\0' && isspace((unsigned char)*start)) {
+        start++;
     }
 
-    pa_end = str + strlen(str) - 1;
-    while (pa_end >= pa_start && isspace((unsigned char)*pa_end)) {
-        pa_end--;
+    end = str + strlen(str) - 1;
+    while (end >= start && isspace((unsigned char)*end)) {
+        end--;
     }
 
-    if (pa_end < pa_start) {
+    if (end < start) {
         length = 0;
     } else {
-        length = (size_t)(pa_end - pa_start + 1);
+        length = (size_t)(end - start + 1);
     }
 
     pa_result = (char*)malloc(length + 1);
@@ -163,7 +163,7 @@ char* trim_malloc(const char* str)
     }
 
     if (length > 0) {
-        strncpy(pa_result, pa_start, length);
+        strncpy(pa_result, start, length);
     }
     pa_result[length] = '\0';
 
@@ -294,14 +294,14 @@ char* truncate_string_malloc(const char* str, size_t max_length, const char* ell
 
 char* string_replace_malloc(const char* str, const char* old_sub, const char* new_sub)
 {
-    const char* pa_current;
-    const char* pa_next;
+    const char* current;
+    const char* next;
     size_t old_length;
     size_t new_length;
     size_t count;
     size_t result_length;
     char* pa_result;
-    char* pa_dest;
+    char* dest;
 
     if (str == NULL || old_sub == NULL || new_sub == NULL) {
         return NULL;
@@ -314,12 +314,12 @@ char* string_replace_malloc(const char* str, const char* old_sub, const char* ne
         return NULL;
     }
 
-    pa_current = str;
+    current = str;
     count = 0;
 
-    while ((pa_next = strstr(pa_current, old_sub)) != NULL) {
+    while ((next = strstr(current, old_sub)) != NULL) {
         count++;
-        pa_current = pa_next + old_length;
+        current = next + old_length;
     }
 
     result_length = strlen(str) + count * (new_length - old_length) + 1;
@@ -329,21 +329,21 @@ char* string_replace_malloc(const char* str, const char* old_sub, const char* ne
         return NULL;
     }
 
-    pa_current = str;
-    pa_dest = pa_result;
+    current = str;
+    dest = pa_result;
 
-    while ((pa_next = strstr(pa_current, old_sub)) != NULL) {
-        size_t prefix_length = pa_next - pa_current;
-        memcpy(pa_dest, pa_current, prefix_length);
-        pa_dest += prefix_length;
+    while ((next = strstr(current, old_sub)) != NULL) {
+        size_t prefix_length = next - current;
+        memcpy(dest, current, prefix_length);
+        dest += prefix_length;
 
-        memcpy(pa_dest, new_sub, new_length);
-        pa_dest += new_length;
+        memcpy(dest, new_sub, new_length);
+        dest += new_length;
 
-        pa_current = pa_next + old_length;
+        current = next + old_length;
     }
 
-    strcpy(pa_dest, pa_current);
+    strcpy(dest, current);
 
     return pa_result;
 }
@@ -351,8 +351,8 @@ char* string_replace_malloc(const char* str, const char* old_sub, const char* ne
 char** split_malloc(const char* str, const char* delimiter, size_t* out_count)
 {
     size_t count = 0;
-    const char* pa_current;
-    const char* pa_next;
+    const char* current;
+    const char* next;
     char** pa_result;
     size_t delimiter_length;
     size_t token_length;
@@ -368,10 +368,10 @@ char** split_malloc(const char* str, const char* delimiter, size_t* out_count)
         return NULL;
     }
 
-    pa_current = str;
-    while ((pa_next = strstr(pa_current, delimiter)) != NULL) {
+    current = str;
+    while ((next = strstr(current, delimiter)) != NULL) {
         count++;
-        pa_current = pa_next + delimiter_length;
+        current = next + delimiter_length;
     }
     count++;
 
@@ -380,11 +380,11 @@ char** split_malloc(const char* str, const char* delimiter, size_t* out_count)
         return NULL;
     }
 
-    pa_current = str;
+    current = str;
     i = 0;
 
-    while ((pa_next = strstr(pa_current, delimiter)) != NULL) {
-        token_length = pa_next - pa_current;
+    while ((next = strstr(current, delimiter)) != NULL) {
+        token_length = next - current;
         pa_result[i] = (char*)malloc(token_length + 1);
         if (pa_result[i] == NULL) {
             for (j = 0; j < i; j++) {
@@ -395,13 +395,13 @@ char** split_malloc(const char* str, const char* delimiter, size_t* out_count)
             pa_result = NULL;
             return NULL;
         }
-        strncpy(pa_result[i], pa_current, token_length);
+        strncpy(pa_result[i], current, token_length);
         pa_result[i][token_length] = '\0';
         i++;
-        pa_current = pa_next + delimiter_length;
+        current = next + delimiter_length;
     }
 
-    pa_result[i] = (char*)malloc(strlen(pa_current) + 1);
+    pa_result[i] = (char*)malloc(strlen(current) + 1);
     if (pa_result[i] == NULL) {
         for (j = 0; j < i; j++) {
             free(pa_result[j]);
@@ -411,7 +411,7 @@ char** split_malloc(const char* str, const char* delimiter, size_t* out_count)
         pa_result = NULL;
         return NULL;
     }
-    strcpy(pa_result[i], pa_current);
+    strcpy(pa_result[i], current);
 
     *out_count = count;
     return pa_result;
